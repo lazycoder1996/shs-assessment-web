@@ -7,21 +7,7 @@ class ResultApi {
 
   ResultApi(this._client);
 
-  Future<AssessmentResult> submit(
-    String attemptId,
-  ) async {
-    final response =
-        await _client.post<AssessmentResult>(
-      '/api/attempts/$attemptId/submit',
-      fromData: (data) {
-        return AssessmentResult.fromJson(
-          data as Map<String, dynamic>,
-        );
-      },
-    );
-
-    return response.data!;
-  }
+ 
 
   Future<AssessmentResult> getResult(
     String attemptId,

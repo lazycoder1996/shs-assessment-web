@@ -1,4 +1,5 @@
 import 'package:quiz_assessment/features/assessment/data/models/assessment_attempt.dart';
+import 'package:quiz_assessment/features/assessment/data/models/assessment_result.dart';
 
 import '../../../core/network/api_client.dart';
 import '../data/models/assessment.dart';
@@ -51,6 +52,20 @@ class AssessmentService {
       '/api/attempts/$attemptId/content',
       fromData: (data) {
         return AssessmentContent.fromJson(data as Map<String, dynamic>);
+      },
+    );
+
+    return response.data!;
+  }
+
+
+
+
+  Future<AssessmentResult> submit(String attemptId) async {
+    final response = await apiClient.post<AssessmentResult>(
+      '/api/attempts/$attemptId/submit',
+      fromData: (data) {
+        return AssessmentResult.fromJson(data as Map<String, dynamic>);
       },
     );
 

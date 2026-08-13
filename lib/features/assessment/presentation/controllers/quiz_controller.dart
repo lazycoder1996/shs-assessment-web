@@ -172,7 +172,7 @@ class QuizController extends GetxController {
       _buildQuestionList(loadedContent);
 
       final savedQuestionIndex = await localStorage.loadCurrentQuestion(
-        assessmentId,
+        startedAttempt.id,
       );
 
       if (savedQuestionIndex != null &&
@@ -183,7 +183,7 @@ class QuizController extends GetxController {
         currentQuestionIndex.value = 0;
       }
 
-      final savedAnswers = await localStorage.loadAnswers(assessmentId);
+      final savedAnswers = await localStorage.loadAnswers(startedAttempt.id);
       answers.assignAll(savedAnswers);
     } catch (e) {
       errorMessage.value = e.toString();
@@ -235,10 +235,10 @@ class QuizController extends GetxController {
     answers.refresh();
 
     // 2. Save locally.
-    await localStorage.saveAnswer(assessmentId: assessmentId, answer: answer);
+    await localStorage.saveAnswer(attemptId: currentAttempt.id, answer: answer);
 
     // 3. Queue backend synchronization.
-    autosaveService.queueAnswer(assessmentId: assessmentId, answer: answer);
+    autosaveService.queueAnswer(attemptId: currentAttempt.id, answer: answer);
   }
 
   final Rxn<AssessmentResult> result = Rxn<AssessmentResult>();
@@ -265,27 +265,58 @@ class QuizController extends GetxController {
       return;
     }
 
-    if (isSubmitting.value) {
-      return;
-    }
-
     isSubmitting.value = true;
     errorMessage.value = null;
     _hasSubmitted = true;
 
     try {
-      final submittedResult = await Get.find<AssessmentRepository>().submit(
+      final hasPending = await autosaveService.hasPendingAnswersFor(
         currentAttempt.id,
       );
+
+      if (hasPending) {
+        Get.snackbar(
+          'Saving your answers',
+          'Please wait while we sync your latest answers.',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 2),
+          showProgressIndicator: true,
+          isDismissible: false,
+        );
+      }
+
+      final synced = await autosaveService.sync(currentAttempt.id);
+
+      if (!synced) {
+        _hasSubmitted = false;
+
+        Get.closeAllSnackbars();
+
+        errorMessage.value =
+            'Unable to save your latest answers. '
+            'Please check your connection and try again.';
+
+        return;
+      }
+
+      Get.closeAllSnackbars();
+
+      final submittedResult = await assessmentService.submit(currentAttempt.id);
 
       result.value = submittedResult;
 
       Get.offNamed(AppRoutes.assessmentResult, arguments: submittedResult);
     } on ApiException catch (e) {
       _hasSubmitted = false;
+
+      Get.closeAllSnackbars();
+
       errorMessage.value = e.message;
     } catch (_) {
       _hasSubmitted = false;
+
+      Get.closeAllSnackbars();
+
       errorMessage.value = 'Unable to submit the assessment.';
     } finally {
       isSubmitting.value = false;
@@ -301,7 +332,7 @@ class QuizController extends GetxController {
       currentQuestionIndex.value++;
 
       await localStorage.saveCurrentQuestion(
-        assessmentId: attempt.value!.assessmentId,
+        attemptId: attempt.value!.id,
         index: currentQuestionIndex.value,
       );
     }
@@ -312,7 +343,7 @@ class QuizController extends GetxController {
       currentQuestionIndex.value--;
 
       await localStorage.saveCurrentQuestion(
-        assessmentId: attempt.value!.assessmentId,
+        attemptId: attempt.value!.id,
         index: currentQuestionIndex.value,
       );
     }
@@ -323,7 +354,7 @@ class QuizController extends GetxController {
       currentQuestionIndex.value = index;
 
       await localStorage.saveCurrentQuestion(
-        assessmentId: attempt.value!.assessmentId,
+        attemptId: attempt.value!.id,
         index: index,
       );
     }

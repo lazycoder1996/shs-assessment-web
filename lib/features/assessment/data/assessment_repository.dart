@@ -81,14 +81,6 @@ class AssessmentRepository {
 
   // Results
 
-  Future<AssessmentResult> submit(
-    String attemptId,
-  ) {
-    return _resultApi.submit(
-      attemptId,
-    );
-  }
-
   Future<AssessmentResult> getResult(
     String attemptId,
   ) {

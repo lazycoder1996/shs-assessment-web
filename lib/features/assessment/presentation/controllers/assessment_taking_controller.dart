@@ -1,419 +1,419 @@
-import 'dart:async';
+// import 'dart:async';
 
-import 'package:get/get.dart';
-import 'package:quiz_assessment/core/network/api_error_handler.dart';
-import 'package:quiz_assessment/features/assessment/data/assessment_repository.dart';
-import 'package:quiz_assessment/features/assessment/data/models/assessment_result.dart';
-import 'package:quiz_assessment/features/assessment/data/models/question_content.dart';
+// import 'package:get/get.dart';
+// import 'package:quiz_assessment/core/network/api_error_handler.dart';
+// import 'package:quiz_assessment/features/assessment/data/assessment_repository.dart';
+// import 'package:quiz_assessment/features/assessment/data/models/assessment_result.dart';
+// import 'package:quiz_assessment/features/assessment/data/models/question_content.dart';
 
-import '../../data/models/assessment_attempt.dart';
-import '../../data/models/assessment_content.dart';
-import '../../data/models/student_answer.dart';
+// import '../../data/models/assessment_attempt.dart';
+// import '../../data/models/assessment_content.dart';
+// import '../../data/models/student_answer.dart';
 
-class AssessmentTakingController extends GetxController {
-  final AssessmentRepository repository;
+// class AssessmentTakingController extends GetxController {
+//   final AssessmentRepository repository;
 
-  AssessmentTakingController({required this.repository});
+//   AssessmentTakingController({required this.repository});
 
-  final result = Rxn<AssessmentResult>();
+//   final result = Rxn<AssessmentResult>();
 
-  final isLoadingResult = false.obs;
+//   final isLoadingResult = false.obs;
 
-  final isSubmitted = false.obs;
+//   final isSubmitted = false.obs;
 
-  Future<AssessmentResult?> submitAssessment() async {
-    final currentAttempt = attempt.value;
+//   Future<AssessmentResult?> submitAssessment() async {
+//     final currentAttempt = attempt.value;
 
-    if (currentAttempt == null) {
-      errorMessage.value = 'No active assessment attempt found.';
+//     if (currentAttempt == null) {
+//       errorMessage.value = 'No active assessment attempt found.';
 
-      return null;
-    }
+//       return null;
+//     }
 
-    if (isSubmitting.value) {
-      return null;
-    }
+//     if (isSubmitting.value) {
+//       return null;
+//     }
 
-    try {
-      isSubmitting.value = true;
-      errorMessage.value = null;
+//     try {
+//       isSubmitting.value = true;
+//       errorMessage.value = null;
 
-      final assessmentResult = await repository.submit(currentAttempt.id);
+//       final assessmentResult = await repository.submit(currentAttempt.id);
 
-      result.value = assessmentResult;
+//       result.value = assessmentResult;
 
-      isSubmitted.value = true;
+//       isSubmitted.value = true;
 
-      _timer?.cancel();
+//       _timer?.cancel();
 
-      return assessmentResult;
-    } catch (e) {
-      errorMessage.value = ApiErrorHandler.message(
-        e,
-        fallback: 'Unable to submit assessment.',
-      );
+//       return assessmentResult;
+//     } catch (e) {
+//       errorMessage.value = ApiErrorHandler.message(
+//         e,
+//         fallback: 'Unable to submit assessment.',
+//       );
 
-      return null;
-    } finally {
-      isSubmitting.value = false;
-    }
-  }
+//       return null;
+//     } finally {
+//       isSubmitting.value = false;
+//     }
+//   }
 
-  Future<AssessmentResult?> loadResult() async {
-    final currentAttempt = attempt.value;
+//   Future<AssessmentResult?> loadResult() async {
+//     final currentAttempt = attempt.value;
 
-    if (currentAttempt == null) {
-      errorMessage.value = 'No assessment attempt found.';
+//     if (currentAttempt == null) {
+//       errorMessage.value = 'No assessment attempt found.';
 
-      return null;
-    }
+//       return null;
+//     }
 
-    try {
-      isLoadingResult.value = true;
-      errorMessage.value = null;
+//     try {
+//       isLoadingResult.value = true;
+//       errorMessage.value = null;
 
-      final assessmentResult = await repository.getResult(currentAttempt.id);
+//       final assessmentResult = await repository.getResult(currentAttempt.id);
 
-      result.value = assessmentResult;
+//       result.value = assessmentResult;
 
-      return assessmentResult;
-    } catch (e) {
-      errorMessage.value = ApiErrorHandler.message(
-        e,
-        fallback: 'Unable to start assessment result.',
-      );
-      return null;
-    } finally {
-      isLoadingResult.value = false;
-    }
-  }
+//       return assessmentResult;
+//     } catch (e) {
+//       errorMessage.value = ApiErrorHandler.message(
+//         e,
+//         fallback: 'Unable to start assessment result.',
+//       );
+//       return null;
+//     } finally {
+//       isLoadingResult.value = false;
+//     }
+//   }
 
-  // ------------------------------------------------------------
-  // Assessment attempt
-  // ------------------------------------------------------------
+//   // ------------------------------------------------------------
+//   // Assessment attempt
+//   // ------------------------------------------------------------
 
-  final attempt = Rxn<AssessmentAttempt>();
+//   final attempt = Rxn<AssessmentAttempt>();
 
-  final content = Rxn<AssessmentContent>();
+//   final content = Rxn<AssessmentContent>();
 
-  // ------------------------------------------------------------
-  // Loading states
-  // ------------------------------------------------------------
+//   // ------------------------------------------------------------
+//   // Loading states
+//   // ------------------------------------------------------------
 
-  final isStarting = false.obs;
+//   final isStarting = false.obs;
 
-  final isLoadingContent = false.obs;
+//   final isLoadingContent = false.obs;
 
-  final isLoadingAnswers = false.obs;
+//   final isLoadingAnswers = false.obs;
 
-  final isSubmitting = false.obs;
+//   final isSubmitting = false.obs;
 
-  // ------------------------------------------------------------
-  // Errors
-  // ------------------------------------------------------------
+//   // ------------------------------------------------------------
+//   // Errors
+//   // ------------------------------------------------------------
 
-  final errorMessage = RxnString();
+//   final errorMessage = RxnString();
 
-  // ------------------------------------------------------------
-  // Questions
-  // ------------------------------------------------------------
+//   // ------------------------------------------------------------
+//   // Questions
+//   // ------------------------------------------------------------
 
-  final currentQuestionIndex = 0.obs;
+//   final currentQuestionIndex = 0.obs;
 
-  // ------------------------------------------------------------
-  // Answers
-  // ------------------------------------------------------------
+//   // ------------------------------------------------------------
+//   // Answers
+//   // ------------------------------------------------------------
 
-  final answers = <StudentAnswer>[].obs;
+//   final answers = <StudentAnswer>[].obs;
 
-  /// questionId -> selectedOptionId
-  final selectedOptions = <String, String>{}.obs;
+//   /// questionId -> selectedOptionId
+//   final selectedOptions = <String, String>{}.obs;
 
-  // ------------------------------------------------------------
-  // Timer
-  // ------------------------------------------------------------
+//   // ------------------------------------------------------------
+//   // Timer
+//   // ------------------------------------------------------------
 
-  final remainingSeconds = 0.obs;
+//   final remainingSeconds = 0.obs;
 
-  Timer? _timer;
+//   Timer? _timer;
 
-  // ============================================================
-  // LIFECYCLE
-  // ============================================================
+//   // ============================================================
+//   // LIFECYCLE
+//   // ============================================================
 
-  @override
-  void onClose() {
-    _timer?.cancel();
-    super.onClose();
-  }
+//   @override
+//   void onClose() {
+//     _timer?.cancel();
+//     super.onClose();
+//   }
 
-  // ============================================================
-  // START
-  // ============================================================
+//   // ============================================================
+//   // START
+//   // ============================================================
 
-  Future<bool> start(String assessmentId) async {
-    try {
-      isStarting.value = true;
-      errorMessage.value = null;
+//   Future<bool> start(String assessmentId) async {
+//     try {
+//       isStarting.value = true;
+//       errorMessage.value = null;
 
-      final result = await repository.startAssessment(assessmentId);
+//       final result = await repository.startAssessment(assessmentId);
 
-      attempt.value = result;
+//       attempt.value = result;
 
-      _startTimer(result.expiresAt);
+//       _startTimer(result.expiresAt);
 
-      await loadContent(result.id);
+//       await loadContent(result.id);
 
-      await loadAnswers(result.id);
+//       await loadAnswers(result.id);
 
-      return true;
-    } catch (e) {
-      errorMessage.value = ApiErrorHandler.message(
-        e,
-        fallback: 'Unable to start assessment.',
-      );
+//       return true;
+//     } catch (e) {
+//       errorMessage.value = ApiErrorHandler.message(
+//         e,
+//         fallback: 'Unable to start assessment.',
+//       );
 
-      return false;
-    } finally {
-      isStarting.value = false;
-    }
-  }
+//       return false;
+//     } finally {
+//       isStarting.value = false;
+//     }
+//   }
 
-  // ============================================================
-  // CONTENT
-  // ============================================================
+//   // ============================================================
+//   // CONTENT
+//   // ============================================================
 
-  Future<void> loadContent(String attemptId) async {
-    try {
-      isLoadingContent.value = true;
-      errorMessage.value = null;
+//   Future<void> loadContent(String attemptId) async {
+//     try {
+//       isLoadingContent.value = true;
+//       errorMessage.value = null;
 
-      final result = await repository.getContent(attemptId);
+//       final result = await repository.getContent(attemptId);
 
-      content.value = result;
-    } catch (e) {
-      errorMessage.value = ApiErrorHandler.message(
-        e,
-        fallback: 'Unable to load assessment content.',
-      );
-    } finally {
-      isLoadingContent.value = false;
-    }
-  }
+//       content.value = result;
+//     } catch (e) {
+//       errorMessage.value = ApiErrorHandler.message(
+//         e,
+//         fallback: 'Unable to load assessment content.',
+//       );
+//     } finally {
+//       isLoadingContent.value = false;
+//     }
+//   }
 
-  // ============================================================
-  // SAVED ANSWERS
-  // ============================================================
+//   // ============================================================
+//   // SAVED ANSWERS
+//   // ============================================================
 
-  Future<void> loadAnswers(String attemptId) async {
-    try {
-      isLoadingAnswers.value = true;
+//   Future<void> loadAnswers(String attemptId) async {
+//     try {
+//       isLoadingAnswers.value = true;
 
-      final result = await repository.getAnswers(attemptId);
+//       final result = await repository.getAnswers(attemptId);
 
-      answers.assignAll(result);
+//       answers.assignAll(result);
 
-      selectedOptions.clear();
+//       selectedOptions.clear();
 
-      for (final answer in result) {
-        final optionId = answer.selectedOptionId;
+//       for (final answer in result) {
+//         final optionId = answer.selectedOptionId;
 
-        if (optionId != null) {
-          selectedOptions[answer.questionId] = optionId;
-        }
-      }
-    } catch (e) {
-      errorMessage.value = ApiErrorHandler.message(
-        e,
-        fallback: 'Unable to load saved answers.',
-      );
-    } finally {
-      isLoadingAnswers.value = false;
-    }
-  }
+//         if (optionId != null) {
+//           selectedOptions[answer.questionId] = optionId;
+//         }
+//       }
+//     } catch (e) {
+//       errorMessage.value = ApiErrorHandler.message(
+//         e,
+//         fallback: 'Unable to load saved answers.',
+//       );
+//     } finally {
+//       isLoadingAnswers.value = false;
+//     }
+//   }
 
-  // ============================================================
-  // QUESTION LIST
-  // ============================================================
+//   // ============================================================
+//   // QUESTION LIST
+//   // ============================================================
 
-  List<QuestionContent> get questions {
-    final assessmentContent = content.value;
+//   List<QuestionContent> get questions {
+//     final assessmentContent = content.value;
 
-    if (assessmentContent == null) {
-      return [];
-    }
+//     if (assessmentContent == null) {
+//       return [];
+//     }
 
-    final result = <QuestionContent>[];
+//     final result = <QuestionContent>[];
 
-    for (final preamble in assessmentContent.preambles) {
-      result.addAll(preamble.questions);
-    }
+//     for (final preamble in assessmentContent.preambles) {
+//       result.addAll(preamble.questions);
+//     }
 
-    result.addAll(assessmentContent.standaloneQuestions);
+//     result.addAll(assessmentContent.standaloneQuestions);
 
-    result.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+//     result.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
 
-    return result;
-  }
+//     return result;
+//   }
 
-  QuestionContent? get currentQuestion {
-    final items = questions;
+//   QuestionContent? get currentQuestion {
+//     final items = questions;
 
-    if (items.isEmpty) {
-      return null;
-    }
+//     if (items.isEmpty) {
+//       return null;
+//     }
 
-    if (currentQuestionIndex.value >= items.length) {
-      return null;
-    }
+//     if (currentQuestionIndex.value >= items.length) {
+//       return null;
+//     }
 
-    return items[currentQuestionIndex.value];
-  }
+//     return items[currentQuestionIndex.value];
+//   }
 
-  int get totalQuestions {
-    return questions.length;
-  }
+//   int get totalQuestions {
+//     return questions.length;
+//   }
 
-  // ============================================================
-  // NAVIGATION
-  // ============================================================
+//   // ============================================================
+//   // NAVIGATION
+//   // ============================================================
 
-  void nextQuestion() {
-    if (currentQuestionIndex.value < totalQuestions - 1) {
-      currentQuestionIndex.value++;
-    }
-  }
+//   void nextQuestion() {
+//     if (currentQuestionIndex.value < totalQuestions - 1) {
+//       currentQuestionIndex.value++;
+//     }
+//   }
 
-  void previousQuestion() {
-    if (currentQuestionIndex.value > 0) {
-      currentQuestionIndex.value--;
-    }
-  }
+//   void previousQuestion() {
+//     if (currentQuestionIndex.value > 0) {
+//       currentQuestionIndex.value--;
+//     }
+//   }
 
-  void goToQuestion(int index) {
-    if (index < 0 || index >= totalQuestions) {
-      return;
-    }
+//   void goToQuestion(int index) {
+//     if (index < 0 || index >= totalQuestions) {
+//       return;
+//     }
 
-    currentQuestionIndex.value = index;
-  }
+//     currentQuestionIndex.value = index;
+//   }
 
-  bool get isFirstQuestion {
-    return currentQuestionIndex.value == 0;
-  }
+//   bool get isFirstQuestion {
+//     return currentQuestionIndex.value == 0;
+//   }
 
-  bool get isLastQuestion {
-    return totalQuestions > 0 &&
-        currentQuestionIndex.value == totalQuestions - 1;
-  }
+//   bool get isLastQuestion {
+//     return totalQuestions > 0 &&
+//         currentQuestionIndex.value == totalQuestions - 1;
+//   }
 
-  // ============================================================
-  // ANSWERS
-  // ============================================================
+//   // ============================================================
+//   // ANSWERS
+//   // ============================================================
 
-  Future<bool> selectAnswer(String optionId) async {
-    final current = currentQuestion;
+//   Future<bool> selectAnswer(String optionId) async {
+//     final current = currentQuestion;
 
-    final currentAttempt = attempt.value;
+//     final currentAttempt = attempt.value;
 
-    if (current == null || currentAttempt == null) {
-      return false;
-    }
+//     if (current == null || currentAttempt == null) {
+//       return false;
+//     }
 
-    final previousOption = selectedOptions[current.id];
+//     final previousOption = selectedOptions[current.id];
 
-    selectedOptions[current.id] = optionId;
+//     selectedOptions[current.id] = optionId;
 
-    try {
-      await repository.saveAnswer(
-        attemptId: currentAttempt.id,
-        questionId: current.id,
-        selectedOptionId: optionId,
-      );
+//     try {
+//       await repository.saveAnswer(
+//         attemptId: currentAttempt.id,
+//         questionId: current.id,
+//         selectedOptionId: optionId,
+//       );
 
-      return true;
-    } catch (e) {
-      if (previousOption == null) {
-        selectedOptions.remove(current.id);
-      } else {
-        selectedOptions[current.id] = previousOption;
-      }
+//       return true;
+//     } catch (e) {
+//       if (previousOption == null) {
+//         selectedOptions.remove(current.id);
+//       } else {
+//         selectedOptions[current.id] = previousOption;
+//       }
 
-      errorMessage.value = ApiErrorHandler.message(
-        e,
-        fallback: 'Unable to save your answer.',
-      );
+//       errorMessage.value = ApiErrorHandler.message(
+//         e,
+//         fallback: 'Unable to save your answer.',
+//       );
 
-      return false;
-    }
-  }
+//       return false;
+//     }
+//   }
 
-  String? selectedOptionFor(String questionId) {
-    return selectedOptions[questionId];
-  }
+//   String? selectedOptionFor(String questionId) {
+//     return selectedOptions[questionId];
+//   }
 
-  bool isAnswered(String questionId) {
-    return selectedOptions.containsKey(questionId);
-  }
+//   bool isAnswered(String questionId) {
+//     return selectedOptions.containsKey(questionId);
+//   }
 
-  int get answeredCount {
-    return selectedOptions.length;
-  }
+//   int get answeredCount {
+//     return selectedOptions.length;
+//   }
 
-  int get unansweredCount {
-    return totalQuestions - answeredCount;
-  }
+//   int get unansweredCount {
+//     return totalQuestions - answeredCount;
+//   }
 
-  // ============================================================
-  // TIMER
-  // ============================================================
+//   // ============================================================
+//   // TIMER
+//   // ============================================================
 
-  void _startTimer(DateTime expiresAt) {
-    _timer?.cancel();
+//   void _startTimer(DateTime expiresAt) {
+//     _timer?.cancel();
 
-    _updateRemainingTime(expiresAt);
+//     _updateRemainingTime(expiresAt);
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      _updateRemainingTime(expiresAt);
-    });
-  }
+//     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+//       _updateRemainingTime(expiresAt);
+//     });
+//   }
 
-  void _updateRemainingTime(DateTime expiresAt) {
-    final now = DateTime.now();
+//   void _updateRemainingTime(DateTime expiresAt) {
+//     final now = DateTime.now();
 
-    final remaining = expiresAt.difference(now);
+//     final remaining = expiresAt.difference(now);
 
-    if (remaining.isNegative || remaining.inSeconds <= 0) {
-      remainingSeconds.value = 0;
+//     if (remaining.isNegative || remaining.inSeconds <= 0) {
+//       remainingSeconds.value = 0;
 
-      _timer?.cancel();
+//       _timer?.cancel();
 
-      if (!isSubmitting.value && !isSubmitted.value) {
-        submitAssessment();
-      }
+//       if (!isSubmitting.value && !isSubmitted.value) {
+//         submitAssessment();
+//       }
 
-      return;
-    }
+//       return;
+//     }
 
-    remainingSeconds.value = remaining.inSeconds;
-  }
+//     remainingSeconds.value = remaining.inSeconds;
+//   }
 
-  bool get isTimeRunningOut {
-    return remainingSeconds.value <= 60 && remainingSeconds.value > 0;
-  }
+//   bool get isTimeRunningOut {
+//     return remainingSeconds.value <= 60 && remainingSeconds.value > 0;
+//   }
 
-  bool get hasTimeExpired {
-    return remainingSeconds.value <= 0;
-  }
+//   bool get hasTimeExpired {
+//     return remainingSeconds.value <= 0;
+//   }
 
-  String get formattedRemainingTime {
-    final total = remainingSeconds.value;
+//   String get formattedRemainingTime {
+//     final total = remainingSeconds.value;
 
-    final minutes = total ~/ 60;
+//     final minutes = total ~/ 60;
 
-    final seconds = total % 60;
+//     final seconds = total % 60;
 
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
-  }
-}
+//     return '${minutes.toString().padLeft(2, '0')}:'
+//         '${seconds.toString().padLeft(2, '0')}';
+//   }
+// }

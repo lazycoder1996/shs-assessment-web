@@ -56,8 +56,15 @@ class AppBindings extends Bindings {
     );
     Get.lazyPut(() => AssessmentService(apiClient: Get.find()));
     Get.lazyPut(() => AssessmentController(assessmentService: Get.find()));
-    Get.lazyPut(() => AssessmentAutosaveService(answerApi: Get.find()));
     Get.lazyPut(() => AssessmentLocalStorage());
+    Get.lazyPut(() {
+      final service = AssessmentAutosaveService(
+        answerApi: Get.find(),
+        localStorage: Get.find(),
+      );
+      service.initialize();
+      return service;
+    });
     Get.lazyPut(() => AssessmentCountdownController(clockService: Get.find()));
     Get.lazyPut(
       () => QuizController(
@@ -65,7 +72,7 @@ class AppBindings extends Bindings {
         autosaveService: Get.find(),
         localStorage: Get.find(),
         assessmentService: Get.find(),
-        clockService: Get.find()
+        clockService: Get.find(),
       ),
     );
   }
