@@ -11,6 +11,10 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+
+    final greeting = _getGreeting(now);
+
     return Row(
       children: [
         Expanded(
@@ -18,12 +22,14 @@ class HomeHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Good morning, ${student.firstName} 👋',
+                '$greeting, ${student.firstName} 👋',
                 style: AppTextStyles.headingMedium,
               ),
+
               const SizedBox(height: 6),
+
               Text(
-                'Ready for your next assessment?',
+                student.classLabel ?? 'Ready for your next assessment?',
                 style: AppTextStyles.body,
               ),
             ],
@@ -43,5 +49,23 @@ class HomeHeader extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _getGreeting(DateTime time) {
+    final hour = time.hour;
+
+    if (hour >= 5 && hour < 12) {
+      return 'Good morning';
+    }
+
+    if (hour >= 12 && hour < 17) {
+      return 'Good afternoon';
+    }
+
+    if (hour >= 17 && hour < 21) {
+      return 'Good evening';
+    }
+
+    return 'Good night';
   }
 }
