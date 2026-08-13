@@ -13,6 +13,7 @@ import 'package:quiz_assessment/features/assessment/data/models/question_preambl
 import 'package:quiz_assessment/features/assessment/data/models/student_answer.dart';
 import 'package:quiz_assessment/features/assessment/presentation/controllers/assessment_countdown_controller.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_autosave.dart';
+import 'package:quiz_assessment/features/assessment/services/assessment_clock_service.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_local_storage.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_service.dart';
 import 'package:uuid/uuid.dart';
@@ -22,12 +23,13 @@ class QuizController extends GetxController {
   final AssessmentLocalStorage localStorage;
   final AssessmentAutosaveService autosaveService;
   final AssessmentCountdownController countdownController;
-
+  final AssessmentClockService clockService;
   QuizController({
     required this.assessmentService,
     required this.localStorage,
     required this.countdownController,
     required this.autosaveService,
+    required this.clockService,
   });
 
   @override
@@ -215,7 +217,7 @@ class QuizController extends GetxController {
       return;
     }
 
-    final now = DateTime.now();
+    final now = clockService.now();
 
     final existingAnswer = answers[questionId];
 
@@ -247,7 +249,7 @@ class QuizController extends GetxController {
       return false;
     }
 
-    return currentAttempt.isActive;
+    return clockService.isAttemptActive(currentAttempt);
   }
 
   bool _hasSubmitted = false;

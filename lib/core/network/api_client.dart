@@ -3,6 +3,27 @@ import 'package:dio/dio.dart';
 import 'api_response.dart';
 
 class ApiClient {
+  Future<DateTime> getServerTime() async {
+    final requestStartedAt = DateTime.now();
+
+    final response = await get<Map<String, dynamic>>(
+      '/api/time',
+      fromData: (data) {
+        return data as Map<String, dynamic>;
+      },
+    );
+
+    final responseReceivedAt = DateTime.now();
+
+    final serverTime = DateTime.parse(response.data!['serverTime'] as String);
+
+    final roundTripTime = responseReceivedAt.difference(requestStartedAt);
+
+    final estimatedServerTime = serverTime.add(roundTripTime ~/ 2);
+
+    return estimatedServerTime;
+  }
+
   final Dio _dio;
   final String _baseUrl;
 
@@ -108,7 +129,9 @@ class ApiClient {
     }
 
     if (exception.type == DioExceptionType.connectionError) {
-      return  ApiException(message: '${exception} Unable to connect to the server.');
+      return ApiException(
+        message: '${exception} Unable to connect to the server.',
+      );
     }
 
     return ApiException(

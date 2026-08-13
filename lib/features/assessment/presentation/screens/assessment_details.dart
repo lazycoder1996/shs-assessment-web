@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quiz_assessment/features/assessment/presentation/controllers/quiz_controller.dart';
+import 'package:quiz_assessment/features/assessment/services/assessment_clock_service.dart';
 import 'package:quiz_assessment/features/home/widgets/assessment_info.dart';
 
 import '../../../../app/routes/app_routes.dart';
@@ -182,17 +183,24 @@ class InstructionItem extends StatelessWidget {
 class AssessmentAvailability extends StatelessWidget {
   final Assessment assessment;
 
-  const AssessmentAvailability({super.key, required this.assessment});
+  const AssessmentAvailability({
+    super.key,
+    required this.assessment,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
+    final clockService =
+        Get.find<AssessmentClockService>();
+
+    final now = clockService.now();
 
     final isAvailable =
         !now.isBefore(assessment.availableFrom) &&
         now.isBefore(assessment.availableUntil);
 
-    final hasEnded = !now.isBefore(assessment.availableUntil);
+    final hasEnded =
+        !now.isBefore(assessment.availableUntil);
 
     String title;
     String message;
@@ -200,37 +208,52 @@ class AssessmentAvailability extends StatelessWidget {
 
     if (hasEnded) {
       title = 'Assessment ended';
-      message = 'This assessment is no longer available.';
+      message =
+          'This assessment is no longer available.';
       icon = Icons.lock_outline;
     } else if (!isAvailable) {
       title = 'Not available yet';
-      message = 'This assessment will become available at the scheduled time.';
+      message =
+          'This assessment will become available at the scheduled time.';
       icon = Icons.schedule_outlined;
     } else {
       title = 'Assessment is ready';
-      message = 'You can start the assessment now.';
+      message =
+          'You can start the assessment now.';
       icon = Icons.check_circle_outline;
     }
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.06),
+        color: AppColors.primary.withValues(
+          alpha: 0.06,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.primary),
+          Icon(
+            icon,
+            color: AppColors.primary,
+          ),
 
           const SizedBox(width: 14),
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTextStyles.bodyMedium),
+                Text(
+                  title,
+                  style: AppTextStyles.bodyMedium,
+                ),
                 const SizedBox(height: 4),
-                Text(message, style: AppTextStyles.caption),
+                Text(
+                  message,
+                  style: AppTextStyles.caption,
+                ),
               ],
             ),
           ),

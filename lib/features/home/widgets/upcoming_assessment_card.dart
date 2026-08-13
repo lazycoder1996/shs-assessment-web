@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../assessment/data/models/assessment.dart';
+import '../../assessment/services/assessment_clock_service.dart';
 import 'assessment_countdown.dart';
 
 class UpcomingAssessmentCard extends StatelessWidget {
@@ -12,9 +14,13 @@ class UpcomingAssessmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final clockService = Get.find<AssessmentClockService>();
+
     final durationMinutes = (assessment.durationSeconds / 60).round();
 
-    final timeUntilStart = assessment.availableFrom.difference(DateTime.now());
+    final timeUntilStart = assessment.availableFrom.difference(
+      clockService.now(),
+    );
 
     final showCountdown =
         timeUntilStart > Duration.zero &&
@@ -68,7 +74,6 @@ class UpcomingAssessmentCard extends StatelessWidget {
                     ),
                     child: AssessmentCountdown(
                       label: 'Starts in',
-                      // target: DateTime.now(),
                       target: assessment.availableFrom,
                     ),
                   )

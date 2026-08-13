@@ -18,8 +18,7 @@ class AssessmentAttempt {
   ) {
     return AssessmentAttempt(
       id: json['id'] as String,
-      assessmentId:
-          json['assessmentId'] as String,
+      assessmentId: json['assessmentId'] as String,
       startedAt: DateTime.parse(
         json['startedAt'] as String,
       ),
@@ -29,19 +28,4 @@ class AssessmentAttempt {
       status: json['status'] as String,
     );
   }
-
-  Duration get remainingTime {
-    final difference =
-        expiresAt.difference(DateTime.now());
-
-    if (difference.isNegative) {
-      return Duration.zero;
-    }
-
-    return difference;
-  }
-
-  bool get isActive =>
-      status == 'IN_PROGRESS' &&
-      remainingTime > Duration.zero;
 }

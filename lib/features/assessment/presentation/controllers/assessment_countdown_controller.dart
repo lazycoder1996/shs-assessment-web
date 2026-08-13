@@ -9,8 +9,9 @@ import '../../services/assessment_clock_service.dart';
 class AssessmentCountdownController extends GetxController {
   final AssessmentClockService clockService;
 
-  AssessmentCountdownController({AssessmentClockService? clockService})
-    : clockService = clockService ?? AssessmentClockService();
+  AssessmentCountdownController({
+    required this.clockService,
+  });
 
   final remaining = Duration.zero.obs;
   final hasStarted = false.obs;
@@ -22,7 +23,8 @@ class AssessmentCountdownController extends GetxController {
       remaining.value <= const Duration(minutes: 10) &&
       remaining.value > const Duration(minutes: 5);
 
-  bool get isCritical => remaining.value <= const Duration(minutes: 5);
+  bool get isCritical =>
+      remaining.value <= const Duration(minutes: 5);
 
   Color get timerColor {
     final time = remaining.value;
@@ -38,19 +40,35 @@ class AssessmentCountdownController extends GetxController {
     return AppColors.primary;
   }
 
-  void start({required DateTime startAt, required DateTime endAt}) {
+  void start({
+    required DateTime startAt,
+    required DateTime endAt,
+  }) {
     timer?.cancel();
 
-    updateCountdown(startAt: startAt, endAt: endAt);
+    updateCountdown(
+      startAt: startAt,
+      endAt: endAt,
+    );
 
-    timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      updateCountdown(startAt: startAt, endAt: endAt);
-    });
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) {
+        updateCountdown(
+          startAt: startAt,
+          endAt: endAt,
+        );
+      },
+    );
   }
 
-  void updateCountdown({required DateTime startAt, required DateTime endAt}) {
+  void updateCountdown({
+    required DateTime startAt,
+    required DateTime endAt,
+  }) {
     final now = clockService.now();
 
+    // Assessment has not started yet.
     if (now.isBefore(startAt)) {
       hasStarted.value = false;
       hasEnded.value = false;
@@ -58,6 +76,7 @@ class AssessmentCountdownController extends GetxController {
       return;
     }
 
+    // Assessment has expired.
     if (!now.isBefore(endAt)) {
       hasStarted.value = true;
       hasEnded.value = true;
@@ -67,6 +86,7 @@ class AssessmentCountdownController extends GetxController {
       return;
     }
 
+    // Assessment is currently live.
     hasStarted.value = true;
     hasEnded.value = false;
     remaining.value = endAt.difference(now);
@@ -79,13 +99,9 @@ class AssessmentCountdownController extends GetxController {
     final minutes = (totalSeconds % 3600) ~/ 60;
     final seconds = totalSeconds % 60;
 
-    final hourText = hours.toString().padLeft(2, '0');
-
-    final minuteText = minutes.toString().padLeft(2, '0');
-
-    final secondText = seconds.toString().padLeft(2, '0');
-
-    return '$hourText:$minuteText:$secondText';
+    return '${hours.toString().padLeft(2, '0')}:'
+        '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
   }
 
   @override

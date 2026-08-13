@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../assessment/services/assessment_clock_service.dart';
 import 'assessment_countdown_display.dart';
@@ -18,11 +19,13 @@ class AssessmentCountdown extends StatefulWidget {
   });
 
   @override
-  State<AssessmentCountdown> createState() => AssessmentCountdownState();
+  State<AssessmentCountdown> createState() =>
+      AssessmentCountdownState();
 }
 
-class AssessmentCountdownState extends State<AssessmentCountdown> {
-  final clockService = AssessmentClockService();
+class AssessmentCountdownState
+    extends State<AssessmentCountdown> {
+  late final AssessmentClockService clockService;
 
   Timer? timer;
 
@@ -32,6 +35,9 @@ class AssessmentCountdownState extends State<AssessmentCountdown> {
   @override
   void initState() {
     super.initState();
+
+    clockService =
+        Get.find<AssessmentClockService>();
 
     updateCountdown();
 
@@ -44,7 +50,8 @@ class AssessmentCountdownState extends State<AssessmentCountdown> {
   void updateCountdown() {
     final now = clockService.now();
 
-    final difference = widget.target.difference(now);
+    final difference =
+        widget.target.difference(now);
 
     if (!mounted) {
       return;
@@ -70,10 +77,13 @@ class AssessmentCountdownState extends State<AssessmentCountdown> {
   }
 
   @override
-  void didUpdateWidget(covariant AssessmentCountdown oldWidget) {
+  void didUpdateWidget(
+    covariant AssessmentCountdown oldWidget,
+  ) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.target != widget.target || oldWidget.label != widget.label) {
+    if (oldWidget.target != widget.target ||
+        oldWidget.label != widget.label) {
       timer?.cancel();
 
       completed = false;
@@ -108,11 +118,15 @@ class AssessmentCountdownState extends State<AssessmentCountdown> {
     final seconds = duration.inSeconds % 60;
 
     if (days > 0) {
-      return hours > 0 ? '${days}d ${hours}h' : '${days}d';
+      return hours > 0
+          ? '${days}d ${hours}h'
+          : '${days}d';
     }
 
     if (hours > 0) {
-      return minutes > 0 ? '${hours}h ${minutes}m' : '${hours}h';
+      return minutes > 0
+          ? '${hours}h ${minutes}m'
+          : '${hours}h';
     }
 
     if (minutes > 0) {

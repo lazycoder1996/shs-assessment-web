@@ -12,6 +12,7 @@ import 'package:quiz_assessment/features/assessment/presentation/controllers/ass
 import 'package:quiz_assessment/features/assessment/presentation/controllers/assessment_countdown_controller.dart';
 import 'package:quiz_assessment/features/assessment/presentation/controllers/quiz_controller.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_autosave.dart';
+import 'package:quiz_assessment/features/assessment/services/assessment_clock_service.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_local_storage.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_service.dart';
 import 'package:quiz_assessment/features/auth/controllers/auth_controller.dart';
@@ -22,16 +23,25 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(
-      () => ApiClient(
-        baseUrl: 'https://shs-assessment-api.onrender.com',
+      () => ApiClient(baseUrl: 'https://shs-assessment-api.onrender.com'),
+    );
+    Get.lazyPut<AssessmentClockService>(
+      () => AssessmentClockService(),
+      fenix: true,
+    );
+    Get.lazyPut(
+      () => AppController(
+        authController: Get.find(),
+        apiClient: Get.find(),
+        clockService: Get.find(),
       ),
     );
-    Get.lazyPut(() => AppController(authController: Get.find()));
     Get.lazyPut(() => AuthService(apiClient: Get.find()));
     Get.lazyPut(() => AuthStorage());
     Get.lazyPut(
       () => AuthController(authService: Get.find(), authStorage: Get.find()),
     );
+
     Get.lazyPut(() => AssessmentApi(Get.find()));
     Get.lazyPut(() => AttemptApi(Get.find()));
     Get.lazyPut(() => AnswerApi(Get.find()));
@@ -46,16 +56,16 @@ class AppBindings extends Bindings {
     );
     Get.lazyPut(() => AssessmentService(apiClient: Get.find()));
     Get.lazyPut(() => AssessmentController(assessmentService: Get.find()));
-    Get.lazyPut(() => AssessmentCountdownController());
     Get.lazyPut(() => AssessmentAutosaveService(answerApi: Get.find()));
     Get.lazyPut(() => AssessmentLocalStorage());
-    Get.lazyPut(() => AssessmentCountdownController());
+    Get.lazyPut(() => AssessmentCountdownController(clockService: Get.find()));
     Get.lazyPut(
       () => QuizController(
         countdownController: Get.find(),
         autosaveService: Get.find(),
         localStorage: Get.find(),
         assessmentService: Get.find(),
+        clockService: Get.find()
       ),
     );
   }
