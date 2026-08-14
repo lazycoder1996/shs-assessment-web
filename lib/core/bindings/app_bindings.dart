@@ -21,6 +21,10 @@ import 'package:quiz_assessment/features/assessment/services/assessment_service.
 import 'package:quiz_assessment/features/auth/controllers/auth_controller.dart';
 import 'package:quiz_assessment/features/auth/services/auth_service.dart';
 import 'package:quiz_assessment/features/auth/services/auth_storage.dart';
+import 'package:quiz_assessment/features/tutor/controllers/tutor_home_controller.dart';
+import 'package:quiz_assessment/features/tutor/controllers/tutor_results_controller.dart';
+import 'package:quiz_assessment/features/tutor/services/tutor_home_service.dart';
+import 'package:quiz_assessment/features/tutor/services/tutor_result_service.dart';
 
 class AppBindings extends Bindings {
   @override
@@ -45,6 +49,11 @@ class AppBindings extends Bindings {
       ),
     );
     Get.lazyPut(() => AuthService(apiClient: Get.find()));
+    Get.lazyPut(() => TutorResultService(apiClient: Get.find()));
+    Get.lazyPut(() => TutorHomeService(apiClient: Get.find()));
+    Get.lazyPut(() => TutorHomeController(service: Get.find()));
+
+    Get.lazyPut(() => TutorResultsController(service: Get.find()));
     Get.lazyPut(() => AuthStorage());
     Get.lazyPut(
       () => AuthController(authService: Get.find(), authStorage: Get.find()),

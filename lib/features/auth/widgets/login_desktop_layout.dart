@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/auth_controller.dart';
+import '../pages/login_page.dart';
 import 'login_brand_panel.dart';
 import 'login_form.dart';
 
 class LoginDesktopLayout extends StatelessWidget {
   final GlobalKey<FormState> formKey;
-  final TextEditingController studentIdController;
+  final TextEditingController identifierController;
   final TextEditingController passwordController;
   final AuthController authController;
+  final LoginAccountType accountType;
+  final ValueChanged<LoginAccountType> onAccountTypeChanged;
   final VoidCallback onLogin;
 
   const LoginDesktopLayout({
     super.key,
     required this.formKey,
-    required this.studentIdController,
+    required this.identifierController,
     required this.passwordController,
     required this.authController,
+    required this.accountType,
+    required this.onAccountTypeChanged,
     required this.onLogin,
   });
 
@@ -24,7 +29,7 @@ class LoginDesktopLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
+        const Expanded(
           flex: 5,
           child: LoginBrandPanel(),
         ),
@@ -39,9 +44,11 @@ class LoginDesktopLayout extends StatelessWidget {
                 ),
                 child: LoginForm(
                   formKey: formKey,
-                  studentIdController: studentIdController,
+                  identifierController: identifierController,
                   passwordController: passwordController,
                   authController: authController,
+                  accountType: accountType,
+                  onAccountTypeChanged: onAccountTypeChanged,
                   onLogin: onLogin,
                 ),
               ),

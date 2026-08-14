@@ -4,14 +4,10 @@ import 'package:quiz_assessment/app/theme/app_colors.dart';
 import 'package:quiz_assessment/app/theme/app_text_styles.dart';
 import 'package:quiz_assessment/features/assessment/data/models/assessment_review.dart';
 
-
 class AssessmentReviewHeader extends StatelessWidget {
   final AssessmentReview review;
 
-  const AssessmentReviewHeader({
-    super.key,
-    required this.review,
-  });
+  const AssessmentReviewHeader({super.key, required this.review});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +21,20 @@ class AssessmentReviewHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 10.w,
-              vertical: 6.h,
+          if (review.student != null) ...[
+            Text(
+              review.student?.fullName ?? '',
+              style: AppTextStyles.labelLarge.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+              ),
             ),
+            SizedBox(height: 18.h),
+          ],
+
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100.r),
               color: Colors.white.withOpacity(0.15),

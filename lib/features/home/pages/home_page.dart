@@ -4,6 +4,8 @@ import 'package:quiz_assessment/features/home/widgets/home_assessment_content.da
 import 'package:quiz_assessment/features/home/widgets/home_error_state.dart';
 import 'package:quiz_assessment/features/home/widgets/home_loading_state.dart';
 import 'package:quiz_assessment/features/home/widgets/home_navigation_bar.dart';
+import 'package:quiz_assessment/features/tutor/pages/tutor_assessment_result_page.dart';
+import 'package:quiz_assessment/features/tutor/pages/tutor_home_page.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../assessment/presentation/controllers/assessment_controller.dart';
@@ -18,58 +20,68 @@ class HomePage extends StatelessWidget {
     final authController = Get.find<AuthController>();
     final assessmentController = Get.find<AssessmentController>();
 
-    final student = authController.currentUser.value;
+    return Obx(() {
+      final isAuthenticated = authController.isAuthenticated;
 
-    if (student == null) {
-      return Container(color: Colors.red);
-    }
+      if (!isAuthenticated) {
+        return Container(color: Colors.red);
+      }
 
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1280),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  HomeNavigationBar(
-                    studentName: student.fullName,
-                    onLogout: () {
-                      authController.logout();
-                      Get.offAllNamed(AppRoutes.login);
-                    },
-                  ),
+      if (authController.isTutor) {
+        return TutorHomePage();
+      }
 
-                  const SizedBox(height: 42),
+      final student = authController.currentUser.value!;
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1280),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 28,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeNavigationBar(
+                      studentName: student.fullName,
+                      onLogout: () {
+                        authController.logout();
+                        Get.offAllNamed(AppRoutes.login);
+                      },
+                    ),
 
-                  HomeHeader(student: student),
+                    const SizedBox(height: 42),
 
-                  const SizedBox(height: 32),
+                    HomeHeader(student: student),
 
-                  Obx(() {
-                    if (assessmentController.isLoading.value) {
-                      return const HomeLoadingState();
-                    }
+                    const SizedBox(height: 32),
 
-                    if (assessmentController.errorMessage.value != null) {
-                      return HomeErrorState(
-                        message: assessmentController.errorMessage.value!,
-                        onRetry: assessmentController.loadAssessments,
+                    Obx(() {
+                      if (assessmentController.isLoading.value) {
+                        return const HomeLoadingState();
+                      }
+
+                      if (assessmentController.errorMessage.value != null) {
+                        return HomeErrorState(
+                          message: assessmentController.errorMessage.value!,
+                          onRetry: assessmentController.loadAssessments,
+                        );
+                      }
+
+                      return HomeAssessmentContent(
+                        assessmentController: assessmentController,
                       );
-                    }
-
-                    return HomeAssessmentContent(
-                      assessmentController: assessmentController,
-                    );
-                  }),
-                ],
+                    }),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

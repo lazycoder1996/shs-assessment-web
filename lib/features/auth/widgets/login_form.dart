@@ -4,20 +4,25 @@ import 'package:get/get.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../controllers/auth_controller.dart';
+import '../pages/login_page.dart';
 
 class LoginForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
-  final TextEditingController studentIdController;
+  final TextEditingController identifierController;
   final TextEditingController passwordController;
   final AuthController authController;
+  final LoginAccountType accountType;
+  final ValueChanged<LoginAccountType> onAccountTypeChanged;
   final VoidCallback onLogin;
 
   const LoginForm({
     super.key,
     required this.formKey,
-    required this.studentIdController,
+    required this.identifierController,
     required this.passwordController,
     required this.authController,
+    required this.accountType,
+    required this.onAccountTypeChanged,
     required this.onLogin,
   });
 
@@ -30,6 +35,9 @@ class LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final isTutor =
+        widget.accountType == LoginAccountType.tutor;
+
     return Form(
       key: widget.formKey,
       child: Column(
@@ -43,29 +51,44 @@ class LoginFormState extends State<LoginForm> {
           const SizedBox(height: 8),
 
           Text(
-            'Sign in to continue to your assessment.',
+            isTutor
+                ? 'Sign in to manage your assessments.'
+                : 'Sign in to continue to your assessment.',
             style: AppTextStyles.body,
           ),
 
-          const SizedBox(height: 36),
+          const SizedBox(height: 28),
+
+          _AccountTypeSelector(
+            value: widget.accountType,
+            onChanged: widget.onAccountTypeChanged,
+          ),
+
+          const SizedBox(height: 32),
 
           Text(
-            'Student ID',
+            isTutor ? 'Staff ID' : 'Student ID',
             style: AppTextStyles.bodyMedium,
           ),
 
           const SizedBox(height: 8),
 
           TextFormField(
-            controller: widget.studentIdController,
+            controller: widget.identifierController,
             textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(
-              hintText: 'Enter your student ID',
-              prefixIcon: Icon(Icons.badge_outlined),
+            decoration: InputDecoration(
+              hintText: isTutor
+                  ? 'Enter your staff ID'
+                  : 'Enter your student ID',
+              prefixIcon: const Icon(
+                Icons.badge_outlined,
+              ),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Enter your student ID';
+                return isTutor
+                    ? 'Enter your staff ID'
+                    : 'Enter your student ID';
               }
 
               return null;
@@ -153,7 +176,9 @@ class LoginFormState extends State<LoginForm> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text('Sign In'),
+                  : Text(
+                      isTutor ? 'Sign In as Tutor' : 'Sign In',
+                    ),
             );
           }),
 
@@ -161,13 +186,106 @@ class LoginFormState extends State<LoginForm> {
 
           Center(
             child: TextButton(
-              onPressed: () {
-                // Password recovery will be added later.
-              },
-              child: const Text('Need help signing in?'),
+              onPressed: () {},
+              child: const Text(
+                'Need help signing in?',
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AccountTypeSelector extends StatelessWidget {
+  final LoginAccountType value;
+  final ValueChanged<LoginAccountType> onChanged;
+
+  const _AccountTypeSelector({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _AccountTypeButton(
+              label: 'Student',
+              icon: Icons.school_outlined,
+              selected:
+                  value == LoginAccountType.student,
+              onTap: () {
+                onChanged(LoginAccountType.student);
+              },
+            ),
+          ),
+          Expanded(
+            child: _AccountTypeButton(
+              label: 'Tutor',
+              icon: Icons.person_outline,
+              selected:
+                  value == LoginAccountType.tutor,
+              onTap: () {
+                onChanged(LoginAccountType.tutor);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountTypeButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _AccountTypeButton({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected
+          ? Theme.of(context).colorScheme.surface
+          : Colors.transparent,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 12,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 19,
+              ),
+              const SizedBox(width: 8),
+              Text(label),
+            ],
+          ),
+        ),
       ),
     );
   }

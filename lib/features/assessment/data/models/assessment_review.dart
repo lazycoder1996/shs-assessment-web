@@ -1,3 +1,5 @@
+import 'package:quiz_assessment/features/auth/models/auth_user.dart';
+
 class AssessmentReview {
   final String attemptId;
   final String assessmentId;
@@ -9,6 +11,8 @@ class AssessmentReview {
   final int unanswered;
   final List<AssessmentReviewQuestion> questions;
 
+  final AuthUser? student;
+
   const AssessmentReview({
     required this.attemptId,
     required this.assessmentId,
@@ -19,6 +23,7 @@ class AssessmentReview {
     required this.wrongAnswers,
     required this.unanswered,
     required this.questions,
+    this.student,
   });
 
   factory AssessmentReview.fromJson(Map<String, dynamic> json) {
@@ -26,16 +31,16 @@ class AssessmentReview {
       attemptId: json['attemptId'],
       assessmentId: json['assessmentId'],
       score: json['score'],
+      student: AuthUser.fromJson(json["student"]),
       totalMarks: json['totalMarks'],
       percentage: (json['percentage'] as num).toDouble(),
       correctAnswers: json['correctAnswers'],
       wrongAnswers: json['wrongAnswers'],
       unanswered: json['unanswered'],
-      questions: (json['questions'] as List)
-          .map(
-            (e) => AssessmentReviewQuestion.fromJson(e),
-          )
-          .toList(),
+      questions:
+          (json['questions'] as List)
+              .map((e) => AssessmentReviewQuestion.fromJson(e))
+              .toList(),
     );
   }
 }
@@ -78,9 +83,7 @@ class AssessmentReviewQuestion {
     required this.options,
   });
 
-  factory AssessmentReviewQuestion.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory AssessmentReviewQuestion.fromJson(Map<String, dynamic> json) {
     return AssessmentReviewQuestion(
       id: json['id'],
       questionNumber: json['questionNumber'],
@@ -95,11 +98,10 @@ class AssessmentReviewQuestion {
       correctOptionText: json['correctOptionText'],
       isCorrect: json['isCorrect'] ?? false,
       isUnanswered: json['isUnanswered'] ?? false,
-      options: (json['options'] as List)
-          .map(
-            (e) => AssessmentReviewOption.fromJson(e),
-          )
-          .toList(),
+      options:
+          (json['options'] as List)
+              .map((e) => AssessmentReviewOption.fromJson(e))
+              .toList(),
     );
   }
 }
@@ -119,9 +121,7 @@ class AssessmentReviewOption {
     required this.isSelected,
   });
 
-  factory AssessmentReviewOption.fromJson(
-    Map<String, dynamic> json,
-  ) {
+  factory AssessmentReviewOption.fromJson(Map<String, dynamic> json) {
     return AssessmentReviewOption(
       id: json['id'],
       optionLabel: json['optionLabel'],

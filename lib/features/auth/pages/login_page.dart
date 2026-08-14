@@ -5,6 +5,11 @@ import '../controllers/auth_controller.dart';
 import '../widgets/login_desktop_layout.dart';
 import '../widgets/login_mobile_layout.dart';
 
+enum LoginAccountType {
+  student,
+  tutor,
+}
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,10 +20,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
 
-  final studentIdController = TextEditingController();
+  final identifierController = TextEditingController();
   final passwordController = TextEditingController();
 
   late final AuthController authController;
+
+  LoginAccountType accountType = LoginAccountType.student;
 
   @override
   void initState() {
@@ -29,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    studentIdController.dispose();
+    identifierController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -39,16 +46,40 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final success = await authController.login(
-      studentNumber: studentIdController.text,
-      password: passwordController.text,
-    );
+    final success = accountType == LoginAccountType.student
+        ? await authController.login(
+            studentNumber: identifierController.text,
+            password: passwordController.text,
+          )
+        : await authController.loginTutor(
+            staffNumber: identifierController.text,
+            password: passwordController.text,
+          );
 
-    if (!mounted) return;
-
-    if (success) {
-      Get.offAllNamed('/home');
+    if (!mounted || !success) {
+      return;
     }
+
+    if (accountType == LoginAccountType.student) {
+      Get.offAllNamed('/home');
+    } else {
+      Get.offAllNamed('/tutor');
+    }
+  }
+
+  void changeAccountType(LoginAccountType type) {
+    if (accountType == type) {
+      return;
+    }
+
+    setState(() {
+      accountType = type;
+      identifierController.clear();
+      passwordController.clear();
+      formKey.currentState?.reset();
+    });
+
+    authController.errorMessage.value = null;
   }
 
   @override
@@ -61,18 +92,22 @@ class _LoginPageState extends State<LoginPage> {
           if (isDesktop) {
             return LoginDesktopLayout(
               formKey: formKey,
-              studentIdController: studentIdController,
+              identifierController: identifierController,
               passwordController: passwordController,
               authController: authController,
+              accountType: accountType,
+              onAccountTypeChanged: changeAccountType,
               onLogin: login,
             );
           }
 
           return LoginMobileLayout(
             formKey: formKey,
-            studentIdController: studentIdController,
+            identifierController: identifierController,
             passwordController: passwordController,
             authController: authController,
+            accountType: accountType,
+            onAccountTypeChanged: changeAccountType,
             onLogin: login,
           );
         },
