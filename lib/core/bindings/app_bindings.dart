@@ -8,9 +8,12 @@ import 'package:quiz_assessment/features/assessment/data/api/assessment_api.dart
 import 'package:quiz_assessment/features/assessment/data/api/attempt_api.dart';
 import 'package:quiz_assessment/features/assessment/data/api/result_api.dart';
 import 'package:quiz_assessment/features/assessment/data/assessment_repository.dart';
+import 'package:quiz_assessment/features/assessment/data/assessment_review_repository.dart';
 import 'package:quiz_assessment/features/assessment/presentation/controllers/assessment_controller.dart';
 import 'package:quiz_assessment/features/assessment/presentation/controllers/assessment_countdown_controller.dart';
+import 'package:quiz_assessment/features/assessment/presentation/controllers/assessment_review_controller.dart';
 import 'package:quiz_assessment/features/assessment/presentation/controllers/quiz_controller.dart';
+import 'package:quiz_assessment/features/assessment/presentation/controllers/result_controller.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_autosave.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_clock_service.dart';
 import 'package:quiz_assessment/features/assessment/services/assessment_local_storage.dart';
@@ -23,7 +26,12 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(
-      () => ApiClient(baseUrl: 'https://shs-assessment-api.onrender.com'),
+      () => ApiClient(
+        baseUrl: "http://localhost:3000",
+        // baseUrl: "https://inertial-spellbound-abrielle.ngrok-free.dev",
+
+        // baseUrl: 'https://shs-assessment-api.onrender.com'
+      ),
     );
     Get.lazyPut<AssessmentClockService>(
       () => AssessmentClockService(),
@@ -54,9 +62,12 @@ class AppBindings extends Bindings {
         resultApi: Get.find(),
       ),
     );
+    Get.lazyPut(() => AssessmentReviewRepository(apiClient: Get.find()));
+    Get.lazyPut(() => AssessmentReviewController(repository: Get.find()));
     Get.lazyPut(() => AssessmentService(apiClient: Get.find()));
     Get.lazyPut(() => AssessmentController(assessmentService: Get.find()));
     Get.lazyPut(() => AssessmentLocalStorage());
+    Get.lazyPut(() => ResultController(Get.find()));
     Get.lazyPut(() {
       final service = AssessmentAutosaveService(
         answerApi: Get.find(),

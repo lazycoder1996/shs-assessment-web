@@ -8,9 +8,7 @@ class HomeEmptyState extends StatelessWidget {
     return const Center(
       child: Padding(
         padding: EdgeInsets.all(48),
-        child: Text(
-          'You have no upcoming assessments.',
-        ),
+        child: Text('You have no assessments records.'),
       ),
     );
   }

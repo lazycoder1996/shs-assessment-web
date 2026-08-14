@@ -57,7 +57,11 @@ class AssessmentController extends GetxController {
     return assessments.where((assessment) => assessment.isUpcoming).toList();
   }
 
+  List<Assessment> get completedAssessments {
+    return assessments.where((assessment) => assessment.isCompleted).toList();
+  }
+
   List<Assessment> get closedAssessments {
-    return assessments.where((assessment) => assessment.isClosed).toList();
+    return assessments.where((assessment) => assessment.isExpired).toList();
   }
 }

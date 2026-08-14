@@ -9,7 +9,7 @@ class ResultApi {
 
  
 
-  Future<AssessmentResult> getResult(
+  Future<AssessmentResult> getResultByAttempt(
     String attemptId,
   ) async {
     final response =
@@ -18,6 +18,21 @@ class ResultApi {
       fromData: (data) {
         return AssessmentResult.fromJson(
           data as Map<String, dynamic>,
+        );
+      },
+    );
+
+    return response.data!;
+  }
+  Future<AssessmentResult> getResultByAssessment(
+    String attemptId,
+  ) async {
+    final response =
+        await _client.get<AssessmentResult>(
+      '/api/assessments/$attemptId/result',
+      fromData: (data) {
+        return AssessmentResult.fromJson(
+          data["result"] as Map<String, dynamic>,
         );
       },
     );

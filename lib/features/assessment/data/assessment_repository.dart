@@ -81,11 +81,18 @@ class AssessmentRepository {
 
   // Results
 
-  Future<AssessmentResult> getResult(
+  Future<AssessmentResult> getResultByAttempt(
     String attemptId,
   ) {
-    return _resultApi.getResult(
+    return _resultApi.getResultByAttempt(
       attemptId,
+    );
+  }
+  Future<AssessmentResult> getResultByAssessment(
+    String assessmentId,
+  ) {
+    return _resultApi.getResultByAssessment(
+      assessmentId,
     );
   }
 }

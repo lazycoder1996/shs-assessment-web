@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../assessment/data/models/assessment.dart';
-import 'assessment_countdown.dart';
 
-class ActiveAssessmentCard extends StatelessWidget {
+class CompletedAssessmentCard extends StatelessWidget {
   final Assessment assessment;
-  final DateTime expiresAt;
+  final double? percentage;
   final VoidCallback? onTap;
 
-  const ActiveAssessmentCard({
+  const CompletedAssessmentCard({
     super.key,
     required this.assessment,
-    required this.expiresAt,
+    this.percentage,
     this.onTap,
   });
 
@@ -29,7 +27,7 @@ class ActiveAssessmentCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+          border: Border.all(color: AppColors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,9 +45,9 @@ class ActiveAssessmentCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
-                    Icons.play_circle_outline_rounded,
+                    Icons.assignment_turned_in_outlined,
                     color: AppColors.primary,
-                    size: 26,
+                    size: 24,
                   ),
                 ),
 
@@ -61,32 +59,16 @@ class ActiveAssessmentCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.10),
+                    color: AppColors.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-
-                      const SizedBox(width: 6),
-
-                      Text(
-                        'LIVE NOW',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.6,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'COMPLETED',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
+                    ),
                   ),
                 ),
               ],
@@ -117,7 +99,7 @@ class ActiveAssessmentCard extends StatelessWidget {
             const SizedBox(height: 18),
 
             // --------------------------------------------------
-            // Time remaining
+            // Result
             // --------------------------------------------------
             Container(
               width: double.infinity,
@@ -126,65 +108,74 @@ class ActiveAssessmentCard extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: AssessmentCountdown(
-                label: 'Expires in',
-                target: expiresAt,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Row(
+                children: [
+                  // Score
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Your score', style: AppTextStyles.caption),
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          assessment.formmatedScore ?? '--',
+                          style: AppTextStyles.headingMedium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Container(width: 1, height: 42, color: AppColors.border),
+
+                  const SizedBox(width: 18),
+
+                  // Duration
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Duration', style: AppTextStyles.caption),
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          '$durationMinutes min',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
 
             const SizedBox(height: 16),
 
             // --------------------------------------------------
-            // Details
+            // Bottom action
             // --------------------------------------------------
             Row(
               children: [
-                const Icon(
-                  Icons.schedule_outlined,
-                  size: 17,
-                  color: AppColors.darkTextTertiary,
-                ),
-
-                const SizedBox(width: 6),
-
-                Text('$durationMinutes min', style: AppTextStyles.caption),
-
-                const SizedBox(width: 18),
-
-                const Icon(
-                  Icons.assignment_outlined,
-                  size: 17,
-                  color: AppColors.darkTextTertiary,
-                ),
-
-                const SizedBox(width: 6),
-
-                Text('Assessment', style: AppTextStyles.caption),
-              ],
-            ),
-
-            const SizedBox(height: 18),
-
-            // --------------------------------------------------
-            // Enter button
-            // --------------------------------------------------
-            SizedBox(
-              width: double.infinity,
-              height: 35.h,
-              child: FilledButton.icon(
-                onPressed: onTap,
-                icon: Icon(Icons.arrow_forward_rounded, size: 20.h),
-                label: Text(
-                  'Enter Assessment',
-                  style: AppTextStyles.headingMedium.copyWith(
-                    color: Colors.white,
-                    fontSize: 16.sp,
+                Expanded(
+                  child: Text(
+                    'View assessment result',
+                    style: AppTextStyles.caption,
                   ),
                 ),
-              ),
+
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ],
             ),
           ],
         ),

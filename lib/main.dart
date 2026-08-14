@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:quiz_assessment/core/bindings/app_bindings.dart';
 import 'package:quiz_assessment/features/auth/controllers/auth_controller.dart';
@@ -23,6 +24,12 @@ class SHSAssessmentApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(
+      context,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      designSize: Size(375, 667),
+    );
     return GetMaterialApp(
       title: 'SHS Assess',
       debugShowCheckedModeBanner: false,

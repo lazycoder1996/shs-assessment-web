@@ -11,10 +11,12 @@ class AssessmentCountdown extends StatefulWidget {
   final String label;
   final VoidCallback? onComplete;
 
+final TextStyle? style;
   const AssessmentCountdown({
     super.key,
     required this.target,
     required this.label,
+    this.style,
     this.onComplete,
   });
 
@@ -108,6 +110,7 @@ class AssessmentCountdownState
     return AssessmentCountdownDisplay(
       label: widget.label,
       value: formatDuration(remaining),
+      style: widget.style,
     );
   }
 

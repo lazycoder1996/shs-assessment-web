@@ -1,101 +1,205 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../assessment/data/models/assessment.dart';
-import '../../assessment/services/assessment_clock_service.dart';
 import 'assessment_countdown.dart';
 
 class UpcomingAssessmentCard extends StatelessWidget {
   final Assessment assessment;
+  final VoidCallback? onTap;
 
-  const UpcomingAssessmentCard({super.key, required this.assessment});
+  const UpcomingAssessmentCard({
+    super.key,
+    required this.assessment,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final clockService = Get.find<AssessmentClockService>();
-
     final durationMinutes = (assessment.durationSeconds / 60).round();
 
-    final timeUntilStart = assessment.availableFrom.difference(
-      clockService.now(),
-    );
+    final timeUntilStart = assessment.availableFrom.difference(DateTime.now());
 
     final showCountdown =
         timeUntilStart > Duration.zero &&
         timeUntilStart <= const Duration(hours: 1);
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.assignment_outlined,
-              color: AppColors.primary,
-            ),
-          ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // --------------------------------------------------
+            // Top row
+            // --------------------------------------------------
+            Row(
               children: [
-                Text(assessment.subject, style: AppTextStyles.bodyMedium),
-
-                const SizedBox(height: 3),
-
-                Text(assessment.title, style: AppTextStyles.caption),
-
-                const SizedBox(height: 8),
-
-                if (showCountdown)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: AssessmentCountdown(
-                      label: 'Starts in',
-                      target: assessment.availableFrom,
-                    ),
-                  )
-                else
-                  Text(
-                    AssessmentDateFormatter.format(assessment.availableFrom),
-                    style: AppTextStyles.caption,
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(14),
                   ),
+                  child: const Icon(
+                    Icons.assignment_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                ),
 
-                const SizedBox(height: 4),
+                const Spacer(),
 
-                Text('$durationMinutes minutes', style: AppTextStyles.caption),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'UPCOMING',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
 
-          const Icon(Icons.chevron_right, color: AppColors.darkTextTertiary),
-        ],
+            const SizedBox(height: 18),
+
+            // --------------------------------------------------
+            // Subject
+            // --------------------------------------------------
+            Text(
+              assessment.subject,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
+            const SizedBox(height: 5),
+
+            Text(
+              assessment.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.headingMedium,
+            ),
+
+            const SizedBox(height: 16),
+
+            // --------------------------------------------------
+            // Assessment details
+            // --------------------------------------------------
+            Row(
+              children: [
+                _InfoItem(
+                  icon: Icons.schedule_outlined,
+                  text: '$durationMinutes min',
+                ),
+
+                const SizedBox(width: 18),
+
+                _InfoItem(
+                  icon: Icons.calendar_today_outlined,
+                  text: AssessmentDateFormatter.format(
+                    assessment.availableFrom,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 18),
+
+            // --------------------------------------------------
+            // Countdown / action
+            // --------------------------------------------------
+            if (showCountdown)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.07),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: AssessmentCountdown(
+                  label: 'Starts in',
+                  target: assessment.availableFrom,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Scheduled assessment',
+                      style: AppTextStyles.caption,
+                    ),
+                  ),
+
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }
 }
+
+// ============================================================
+// Info item
+// ============================================================
+
+class _InfoItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _InfoItem({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 17, color: AppColors.darkTextTertiary),
+
+        const SizedBox(width: 6),
+
+        Text(text, style: AppTextStyles.caption),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// Date formatter
+// ============================================================
 
 abstract final class AssessmentDateFormatter {
   static String format(DateTime dateTime) {

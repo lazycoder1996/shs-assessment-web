@@ -58,10 +58,9 @@ class QuizController extends GetxController {
   final currentQuestionIndex = 0.obs;
 
   final isLoading = false.obs;
+  final errorMessage = RxnString();
 
   final isSubmitting = false.obs;
-
-  final errorMessage = RxnString();
 
   final Rxn<AssessmentAttempt> attempt = Rxn<AssessmentAttempt>();
 
@@ -305,7 +304,7 @@ class QuizController extends GetxController {
 
       result.value = submittedResult;
 
-      Get.offNamed(AppRoutes.assessmentResult, arguments: submittedResult);
+      Get.offNamed(AppRoutes.assessmentResultPage(assessment.value!.id));
     } on ApiException catch (e) {
       _hasSubmitted = false;
 
