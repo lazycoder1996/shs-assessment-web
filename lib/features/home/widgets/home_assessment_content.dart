@@ -29,7 +29,7 @@ class HomeAssessmentContent extends StatelessWidget {
 
     if (liveAssessments.isEmpty &&
         upcomingAssessments.isEmpty &&
-        upcomingAssessments.isEmpty &&
+        completedAssessments.isEmpty &&
         expiredAssessments.isEmpty) {
       return const HomeEmptyState();
     }

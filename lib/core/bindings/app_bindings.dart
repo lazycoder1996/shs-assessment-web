@@ -27,10 +27,10 @@ class AppBindings extends Bindings {
   void dependencies() {
     Get.lazyPut(
       () => ApiClient(
-        // baseUrl: "http://localhost:3000",
+        baseUrl: "http://localhost:3000",
         // baseUrl: "https://inertial-spellbound-abrielle.ngrok-free.dev",
 
-        baseUrl: 'https://shs-assessment-api.onrender.com'
+        // baseUrl: 'https://shs-assessment-api.onrender.com'
       ),
     );
     Get.lazyPut<AssessmentClockService>(
