@@ -30,8 +30,8 @@ class AssessmentReview {
     return AssessmentReview(
       attemptId: json['attemptId'],
       assessmentId: json['assessmentId'],
+      student: json['student'] == null? null: AuthUser.fromJson(json["student"]),
       score: json['score'],
-      student: AuthUser.fromJson(json["student"]),
       totalMarks: json['totalMarks'],
       percentage: (json['percentage'] as num).toDouble(),
       correctAnswers: json['correctAnswers'],
